@@ -65,12 +65,12 @@ class DataManager():
         return sentences
     
     def load_text_files(self):
+        tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
         for classes in glob.glob(os.path.join(self.path, "*")):
             for text in glob.glob(os.path.join(classes, "*")):
                 self.labels.append(os.path.basename(classes))
                 text = open(text, encoding=self.encoding).read().lower()
                 self.texts.append(text)
-                tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
                 text = tokenizer.tokenize(text)
                 self.sentences.append(text)
 
@@ -88,9 +88,9 @@ class DataManager():
             print("Labels{}\n\n".format(self.labels))
 
     def tokenize(self):
-        tokenizer = Tokenizer(self.vocab_size)
-        tokenizer.fit_on_texts(self.texts)
-        self.tokens = [tokenizer.texts_to_sequences(self.sentences[i]) for i in range(len(self.sentences))]
+        self.tokenizer = Tokenizer(self.vocab_size)
+        self.tokenizer.fit_on_texts(self.texts)
+        self.tokens = [self.tokenizer.texts_to_sequences(self.sentences[i]) for i in range(len(self.sentences))]
         max_array = [list(map(lambda sentence: len(sentence), text)) for text in self.tokens]
         self.maxlen = max(max(max_array))
         self.tokens = [pad_sequences(self.tokens[i], padding='post', truncating='post', value=0, maxlen=self.maxlen) for i in range(len(self.tokens))]
@@ -98,7 +98,7 @@ class DataManager():
             if self.tokens[i].shape[0] < self.max_sentence_number:
                 for _ in range(self.max_sentence_number - self.tokens[i].shape[0]):
                     self.tokens[i] = np.append(self.tokens[i], [np.zeros(self.maxlen)], 0)
-        self.word2idx = tokenizer.word_index
+        self.word2idx = self.tokenizer.word_index
         self.vocab_size = len(self.word2idx)
 
     def train_valid_split(self):
@@ -108,6 +108,24 @@ class DataManager():
         train_classes, valid_classes = self.class_id[:train_size], self.class_id[train_size:]
         self.train_set = Dataset.from_tensor_slices((train_tokens, train_classes))
         self.val_set = Dataset.from_tensor_slices((valid_tokens, valid_classes))
+
+    def predict_preprocess(self, input_texts):
+        tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
+        texts = []
+        sentences = []
+        for text in input_texts:
+            texts.append(text)
+            text = tokenizer.tokenize(text)
+            sentences.append(text)
+        tokens = [self.tokenizer.texts_to_sequences(sentences[i]) for i in range(len(sentences))]
+        max_array = [list(map(lambda sentence: len(sentence), text)) for text in tokens]
+        maxlen = max(max(max_array))
+        tokens = [pad_sequences(tokens[i], padding='post', truncating='post', value=0, maxlen=self.maxlen) for i in range(len(tokens))]
+        for i in range(len(tokens)):
+            if tokens[i].shape[0] < self.max_sentence_number:
+                for _ in range(self.max_sentence_number - tokens[i].shape[0]):
+                    tokens[i] = np.append(tokens[i], [np.zeros(self.maxlen)], 0)
+        return Dataset.from_tensor_slices(tokens)
 
 
 def sys_args():

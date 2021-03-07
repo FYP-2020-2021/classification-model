@@ -11,6 +11,7 @@ from tensorflow.keras.optimizers import Adagrad
 from tensorflow.keras.optimizers import Adamax
 from models.bilstm import BiLSTM
 from models.bigru_attention import BiGRUAttention
+from models.han import HAN
 from data_manager import DataManager
 
 model_names = ['bilstm', 'bigruattention', 'han', 'bert']
@@ -108,6 +109,21 @@ args = parser.parse_args()
 
 dm = DataManager(args.data, args.train_ratio, verbose=args.verbose, encoding=args.encoding)
 
+input_string = ['A text editor for Chrome OS and Chrome.\n' + \
+'Text.app is a simple text editor for Chrome OS and Chrome. It\'s fast, lets you open multiple files at once, has syntax highlighting, and saves to Google Drive on Chrome OS.\n' + \
+'\n' + \
+'File bugs:\n' + \
+'https://github.com/GoogleChrome/text-app/issues\n' + \
+'\n' + \
+'Version 0.5.186\n' + \
+'- Added screenreader mode to settings. Flipping this on turns off syntax highlighting, smart tab, line numbers and various other visual settings but greatly improves screenreader behavior.\n' + \
+'- Removed option to turn on analytics, removed all analytics code.\n' + \
+'- Added support for files with "xht", "xhtm" and "xhtml" extensions.\n' + \
+'- Removed behavior where doing control + s while caps lock was on would trigger a save as operation instead of a save operation.']
+
+tensor = dm.predict_preprocess(input_string)
+print(tensor)
+
 if args.optimizer == 'adam':
     optimizer = Adam(args.lr)
 elif args.optimizer == 'rmsprop':
@@ -137,10 +153,18 @@ elif args.arch == 'bigruattention':
                             batch_size=args.batch_size, optimizer=optimizer,
                             checkpoint_path=args.model_dir, embed_size=args.embed_size,
                             loss=args.loss, metrics=args.metrics, state_sizes=args.state_sizes)
+elif args.arch == 'han':
+    model = HAN(args.cvl, dm, regularizers=regularizer, epochs=args.epochs, dropout=args.dropout,
+                            batch_size=args.batch_size, optimizer=optimizer,
+                            checkpoint_path=args.model_dir, embed_size=args.embed_size,
+                            loss=args.loss, metrics=args.metrics, state_sizes=args.state_sizes)
 
 if args.resume is not None:
     model.model = load_model(args.resume)
-model.build()
-model.compile()
-model.model.summary()
-model.fit()
+else:
+    model.build()
+    model.compile()
+    model.model.summary()
+    model.fit()
+
+print(model.model.predict(tensor.batch(32)))
