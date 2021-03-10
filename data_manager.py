@@ -106,7 +106,7 @@ class DataManager():
         train_size = int(self.train_ratio * len(idxs)) + 1
         train_tokens, valid_tokens = self.tokens[:train_size], self.tokens[train_size:]
         train_classes, valid_classes = self.class_id[:train_size], self.class_id[train_size:]
-        self.train_set = Dataset.from_tensor_slices((train_tokens, train_classes))
+        self.train_set = Dataset.from_tensor_slices((train_tokens, train_classes)).shuffle(train_size, reshuffle_each_iteration=True)
         self.val_set = Dataset.from_tensor_slices((valid_tokens, valid_classes))
 
     def predict_preprocess(self, input_texts):
