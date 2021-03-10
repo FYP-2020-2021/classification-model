@@ -1,3 +1,7 @@
+"""
+Source: https://github.com/FlorisHoogenboom/keras-han-for-docla/blob/master/keras_han/model.py
+"""
+
 import tensorflow as tf
 
 from .layers.attention_layer import AttentionLayer
@@ -25,11 +29,16 @@ class HAN(MyModels):
         return Model(inputs=x, outputs=h, name='word_encoder')
 
     def _build_sentence_encoder(self):
-        x = layers.Input((self.data_manager.max_sentence_number, self.state_sizes[-1]))
-        h = layers.Embedding(self.data_manager.vocab_size + 1, self.embed_size, 
-                             embeddings_regularizer=self.regularizers, 
-                             input_length=self.data_manager.maxlen, mask_zero=True)(x)
-        for i in range(len(self.state_sizes)):
+        x = layers.Input((self.data_manager.max_sentence_number, self.state_sizes[-1] * 2))
+        # h = layers.Embedding(self.data_manager.vocab_size + 1, self.embed_size, 
+        #                      embeddings_regularizer=self.regularizers, 
+        #                      input_length=self.data_manager.maxlen, mask_zero=True)(x)
+        h = layers.Bidirectional(layers.LSTM(self.state_sizes[0], 
+                                        kernel_regularizer=self.regularizers, 
+                                        recurrent_regularizer=self.regularizers, 
+                                        dropout=self.dropout, 
+                                        return_sequences=True))(x)
+        for i in range(1, len(self.state_sizes)):
             h = layers.Bidirectional(layers.LSTM(self.state_sizes[i], 
                                         kernel_regularizer=self.regularizers, 
                                         recurrent_regularizer=self.regularizers, 

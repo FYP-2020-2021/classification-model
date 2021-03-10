@@ -109,20 +109,20 @@ args = parser.parse_args()
 
 dm = DataManager(args.data, args.train_ratio, verbose=args.verbose, encoding=args.encoding)
 
-input_string = ['A text editor for Chrome OS and Chrome.\n' + \
-'Text.app is a simple text editor for Chrome OS and Chrome. It\'s fast, lets you open multiple files at once, has syntax highlighting, and saves to Google Drive on Chrome OS.\n' + \
-'\n' + \
-'File bugs:\n' + \
-'https://github.com/GoogleChrome/text-app/issues\n' + \
-'\n' + \
-'Version 0.5.186\n' + \
-'- Added screenreader mode to settings. Flipping this on turns off syntax highlighting, smart tab, line numbers and various other visual settings but greatly improves screenreader behavior.\n' + \
-'- Removed option to turn on analytics, removed all analytics code.\n' + \
-'- Added support for files with "xht", "xhtm" and "xhtml" extensions.\n' + \
-'- Removed behavior where doing control + s while caps lock was on would trigger a save as operation instead of a save operation.']
+# input_string = ['A text editor for Chrome OS and Chrome.\n' + \
+# 'Text.app is a simple text editor for Chrome OS and Chrome. It\'s fast, lets you open multiple files at once, has syntax highlighting, and saves to Google Drive on Chrome OS.\n' + \
+# '\n' + \
+# 'File bugs:\n' + \
+# 'https://github.com/GoogleChrome/text-app/issues\n' + \
+# '\n' + \
+# 'Version 0.5.186\n' + \
+# '- Added screenreader mode to settings. Flipping this on turns off syntax highlighting, smart tab, line numbers and various other visual settings but greatly improves screenreader behavior.\n' + \
+# '- Removed option to turn on analytics, removed all analytics code.\n' + \
+# '- Added support for files with "xht", "xhtm" and "xhtml" extensions.\n' + \
+# '- Removed behavior where doing control + s while caps lock was on would trigger a save as operation instead of a save operation.']
 
-tensor = dm.predict_preprocess(input_string)
-print(tensor)
+# tensor = dm.predict_preprocess(input_string)
+# print(tensor)
 
 if args.optimizer == 'adam':
     optimizer = Adam(args.lr)
@@ -164,7 +164,5 @@ if args.resume is not None:
 else:
     model.build()
     model.compile()
-    model.model.summary()
-    model.fit()
-
-print(model.model.predict(tensor.batch(32)))
+model.model.summary()
+model.fit()

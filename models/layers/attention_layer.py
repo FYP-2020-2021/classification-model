@@ -1,7 +1,9 @@
+"""
+Source: https://github.com/FlorisHoogenboom/keras-han-for-docla/blob/master/keras_han/layers.py
+"""
+
 import tensorflow.keras as keras
 import tensorflow as tf
-# tf.config.run_functions_eagerly(True)
-# from keras import backend as K
 
 
 class AttentionLayer(keras.layers.Layer):
