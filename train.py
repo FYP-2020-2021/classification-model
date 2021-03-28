@@ -166,3 +166,4 @@ else:
     model.compile()
 model.model.summary()
 model.fit()
+model.model.save(args.model_dir)

@@ -22,8 +22,9 @@ class MyModels:
         self.metrics = metrics
         self.regularizers = regularizers
         self.dropout = dropout
-        self.callbacks = [ModelCheckpoint(checkpoint_path, save_best_only=True, 
-                                         mode='min')]
+        # self.callbacks = [ModelCheckpoint(checkpoint_path, save_best_only=True, 
+        #                                  mode='min')]
+        self.callbacks = None
 
     def compile(self):
         self.model.compile(optimizer=self.optimizer, loss=self.loss, metrics=self.metrics)
