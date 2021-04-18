@@ -72,7 +72,7 @@ class DataManager():
                 text = open(text, encoding=self.encoding).read().lower()
                 self.texts.append(text)
                 text = tokenizer.tokenize(text)
-                self.sentences.append(text)
+                self.sentences.append(text[: 100])
 
     def encode_labels(self):
         le = preprocessing.LabelEncoder()
@@ -80,6 +80,7 @@ class DataManager():
         self.labels = le.classes_
         self.num_classes = len(self.labels)
         self.max_sentence_number = max(map(lambda sentence: len(sentence), self.sentences))
+        self.max_sentence_number = 100
         if self.verbose:
             print("\nSample questions...\n")
             for i in range(5):
@@ -93,6 +94,7 @@ class DataManager():
         self.tokens = [self.tokenizer.texts_to_sequences(self.sentences[i]) for i in range(len(self.sentences))]
         max_array = [list(map(lambda sentence: len(sentence), text)) for text in self.tokens]
         self.maxlen = max(max(max_array))
+        self.maxlen = 30
         self.tokens = [pad_sequences(self.tokens[i], padding='post', truncating='post', value=0, maxlen=self.maxlen) for i in range(len(self.tokens))]
         for i in range(len(self.tokens)):
             if self.tokens[i].shape[0] < self.max_sentence_number:
@@ -140,6 +142,6 @@ if __name__ == '__main__':
     args = sys_args()
     print('Loading ....')
     dm = DataManager(args.path, args.train_ratio, args.verbose)
-    print(dm.word2idx)
-    print(dm.train_set)
-    print(dm.val_set)
+    # print(dm.word2idx)
+    # print(dm.train_set)
+    # print(dm.val_set)
