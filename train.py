@@ -1,4 +1,5 @@
 import argparse
+import pickle
 
 from tensorflow.keras.models import load_model
 from tensorflow.keras.regularizers import L2
@@ -96,7 +97,7 @@ parser.add_argument('--metrics', default='sparse_categorical_accuracy', nargs='?
                     help='performance metrics: ' +
                         ' | '.join(metrics) +
                         ' (default: sparse_categorical_accuracy)')
-parser.add_argument('--state-sizes', default=[128, 256], type=int, nargs='?',
+parser.add_argument('--state-sizes', default=[128, 256], type=int, nargs='+',
                     help='the hidden state sizes of the RNN layers, each element represents the hidden size of an RNN layer. (default: [128, 256]')
 parser.add_argument('--embed-size', default=200, type=int, 
                     help='embedding layer size of the model.')
@@ -108,6 +109,7 @@ args = parser.parse_args()
 
 
 dm = DataManager(args.data, args.train_ratio, verbose=args.verbose, encoding=args.encoding)
+pickle.dump(dm, "/content/drive/MyDrive/Colab\ Notebooks/FIT3161/Implementation/DataManager.pickle")
 
 # input_string = ['A text editor for Chrome OS and Chrome.\n' + \
 # 'Text.app is a simple text editor for Chrome OS and Chrome. It\'s fast, lets you open multiple files at once, has syntax highlighting, and saves to Google Drive on Chrome OS.\n' + \

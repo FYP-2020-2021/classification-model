@@ -15,5 +15,7 @@ class BiLSTM(MyModels):
         core = BiRNNLayers(self.data_manager, self.embed_size, self.regularizers, self.dropout, self.state_sizes)
         h = layers.TimeDistributed(core)(x)
         h = tf.math.reduce_mean(h, 1)
+        h = layers.Dense(self.data_manager.num_classes, 'relu', 
+                         kernel_regularizer=self.regularizers)(h)
         h = layers.Softmax()(h)
         self.model = Model(x, h)
