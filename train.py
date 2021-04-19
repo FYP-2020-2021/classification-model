@@ -1,5 +1,4 @@
 import argparse
-import pickle
 
 from tensorflow.keras.models import load_model
 from tensorflow.keras.regularizers import L2
@@ -40,7 +39,7 @@ parser.add_argument('-a', '--arch', metavar='ARCH', default='bilstm',
                         ' | '.join(model_names) +
                         ' (default: bilstm)')
 parser.add_argument('--encoding', default='utf8', type=str, 
-                    help='encoding of the dataset texts (default: utf8')
+                    help='encoding of the dataset texts (default: utf8)')
 # parser.add_argument('-j', '--workers', default=2, type=int, metavar='N',
 #                     help='number of data loading workers (default: 2)')
 parser.add_argument('--epochs', default=35, type=int, metavar='N',
@@ -109,7 +108,6 @@ args = parser.parse_args()
 
 
 dm = DataManager(args.data, args.train_ratio, verbose=args.verbose, encoding=args.encoding)
-pickle.dump(dm, "/content/drive/MyDrive/Colab\ Notebooks/FIT3161/Implementation/DataManager.pickle")
 
 # input_string = ['A text editor for Chrome OS and Chrome.\n' + \
 # 'Text.app is a simple text editor for Chrome OS and Chrome. It\'s fast, lets you open multiple files at once, has syntax highlighting, and saves to Google Drive on Chrome OS.\n' + \

@@ -3,6 +3,7 @@ import os
 import glob
 import nltk
 import random
+import pickle
 import argparse
 import numpy as np
 
@@ -30,6 +31,8 @@ class DataManager():
         self.encode_labels()
         self.tokenize()
         self.train_valid_split()
+        with open("tf_tokenizer.pkl", "wb") as pkl_file:
+            pickle.dump(self.tokenizer, pkl_file)
     
     def split_into_sentences(self, text):
         alphabets= "([A-Za-z])"
@@ -66,6 +69,7 @@ class DataManager():
     
     def load_text_files(self):
         tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
+        print("Dataset path:", self.path)
         for classes in glob.glob(os.path.join(self.path, "*")):
             for text in glob.glob(os.path.join(classes, "*")):
                 self.labels.append(os.path.basename(classes))
@@ -111,7 +115,7 @@ class DataManager():
         self.train_set = Dataset.from_tensor_slices((train_tokens, train_classes)).shuffle(train_size, reshuffle_each_iteration=True)
         self.val_set = Dataset.from_tensor_slices((valid_tokens, valid_classes))
 
-    def predict_preprocess(self, input_texts):
+    def predict_preprocess(self, input_texts, tf_tokenizer_path):
         tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
         texts = []
         sentences = []
@@ -119,6 +123,8 @@ class DataManager():
             texts.append(text)
             text = tokenizer.tokenize(text)
             sentences.append(text)
+        with open(tf_tokenizer_path, 'rb') as pkl_read:
+            self.tokenizer = pickle.load(pkl_read)
         tokens = [self.tokenizer.texts_to_sequences(sentences[i]) for i in range(len(sentences))]
         max_array = [list(map(lambda sentence: len(sentence), text)) for text in tokens]
         maxlen = max(max(max_array))
