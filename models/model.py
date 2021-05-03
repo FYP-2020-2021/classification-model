@@ -30,10 +30,15 @@ class MyModels:
         self.model.compile(optimizer=self.optimizer, loss=self.loss, metrics=self.metrics)
 
     def fit(self):
-        self.model.fit(self.data_manager.train_set.batch(self.batch_size), 
+        # self.model.fit(self.data_manager.train_set.batch(self.batch_size), 
+        #             epochs=self.epochs, 
+        #             validation_data=self.data_manager.val_set.batch(
+        #                 self.batch_size), callbacks=self.callbacks, shuffle=True)
+    
+        self.model.fit(x=self.data_manager.train_tokens, y=self.data_manager.train_classes, 
+                    batch_size=self.batch_size,
                     epochs=self.epochs, 
-                    validation_data=self.data_manager.val_set.batch(
-                        self.batch_size), callbacks=self.callbacks)
+                    validation_data=(self.data_manager.valid_tokens, self.data_manager.valid_classes), callbacks=self.callbacks, shuffle=True)
         
     def evaluate(self, *args, **kwargs):
         self.model.evaluate(*args,**kwargs)

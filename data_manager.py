@@ -108,12 +108,17 @@ class DataManager():
         self.vocab_size = len(self.word2idx)
 
     def train_valid_split(self):
-        idxs = np.random.permutation(np.arange(len(self.texts)))
+        idxs = np.random.permutation(len(self.tokens))
         train_size = int(self.train_ratio * len(idxs)) + 1
-        train_tokens, valid_tokens = self.tokens[:train_size], self.tokens[train_size:]
-        train_classes, valid_classes = self.class_id[:train_size], self.class_id[train_size:]
-        self.train_set = Dataset.from_tensor_slices((train_tokens, train_classes)).shuffle(train_size, reshuffle_each_iteration=True)
-        self.val_set = Dataset.from_tensor_slices((valid_tokens, valid_classes))
+        self.tokens = np.asarray(self.tokens)[idxs]
+        self.class_id = np.asarray(self.class_id)[idxs]
+        self.train_tokens, self.valid_tokens = self.tokens[:train_size], self.tokens[train_size:]
+        self.train_classes, self.valid_classes = self.class_id[:train_size], self.class_id[train_size:]
+        self.train_tokens = np.asarray(self.train_tokens)
+        self.valid_tokens = np.asarray(self.valid_tokens)
+        # print(self.train_tokens.shape, len(self.train_classes))
+        # self.train_set = Dataset.from_tensor_slices((train_tokens, train_classes))
+        # self.val_set = Dataset.from_tensor_slices((valid_tokens, valid_classes))
 
     def predict_preprocess(self, input_texts, tf_tokenizer_path):
         tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')

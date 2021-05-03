@@ -15,7 +15,8 @@ class BiGRUAttention(MyModels):
         x = layers.Input((self.data_manager.max_sentence_number, self.data_manager.maxlen))
         core = BiRNNLayers(self.data_manager, self.embed_size, self.regularizers, self.dropout, self.state_sizes, cell_type='gru', context_vector_length=self.context_vector_length)
         h = layers.TimeDistributed(core)(x)
-        h = tf.math.reduce_mean(h, 1)
+        # h = tf.math.reduce_mean(h, 1)
+        h = layers.Flatten()(h)
         h = layers.Dense(self.data_manager.num_classes, 'relu', 
                          kernel_regularizer=self.regularizers)(h)
         h = layers.Softmax()(h)
