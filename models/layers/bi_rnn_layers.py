@@ -7,7 +7,10 @@ from .attention_layer import AttentionLayer
 class BiRNNLayers(layers.Layer):
     def __init__(self, dm, es, r, d, ss, cell_type='lstm', context_vector_length=100):
         super(BiRNNLayers, self).__init__()
-        self.data_manager = dm
+        # self.data_manager = dm
+        self.maxlen = dm.maxlen
+        self.vocab_size = dm.vocab_size
+        self.num_classes = dm.num_classes
         self.embed_size = es
         self.regularizers = r
         self.dropout = d
@@ -16,9 +19,9 @@ class BiRNNLayers(layers.Layer):
         self.context_vector_length = context_vector_length
 
     def build_lstm(self):
-        self.embedding = layers.Embedding(self.data_manager.vocab_size + 1, self.embed_size, 
+        self.embedding = layers.Embedding(self.vocab_size + 1, self.embed_size, 
                              embeddings_regularizer=self.regularizers, 
-                             input_length=self.data_manager.maxlen, mask_zero=True)
+                             input_length=self.maxlen, mask_zero=True)
         num_layers = len(self.state_sizes)
         self.biRNN = []
         for i in range(num_layers):
@@ -29,13 +32,13 @@ class BiRNNLayers(layers.Layer):
                                     return_sequences=True)))
         self.max_pool = layers.MaxPool1D(self.state_sizes[-1] * 2, padding='same', data_format='channels_first')
         self.avg_pool = layers.AvgPool1D(self.state_sizes[-1] * 2, padding='same', data_format='channels_first')
-        self.fc_layer = layers.Dense(self.data_manager.num_classes, 'relu', 
+        self.fc_layer = layers.Dense(self.num_classes, 'relu', 
                          kernel_regularizer=self.regularizers)
 
     def build_gru(self):
-        self.embedding = layers.Embedding(self.data_manager.vocab_size + 1, self.embed_size, 
+        self.embedding = layers.Embedding(self.vocab_size + 1, self.embed_size, 
                              embeddings_regularizer=self.regularizers, 
-                             input_length=self.data_manager.maxlen, mask_zero=True)
+                             input_length=self.maxlen, mask_zero=True)
         num_layers = len(self.state_sizes)
         self.biRNN = []
         for i in range(num_layers):
@@ -44,7 +47,7 @@ class BiRNNLayers(layers.Layer):
                                     recurrent_regularizer=self.regularizers, 
                                     dropout=self.dropout, 
                                     return_sequences=True)))
-        self.fc_layer = layers.Dense(self.data_manager.num_classes, 'relu', 
+        self.fc_layer = layers.Dense(self.num_classes, 'relu', 
                                     kernel_regularizer=self.regularizers)
         self.attention = AttentionLayer(self.context_vector_length)
     
@@ -65,7 +68,7 @@ class BiRNNLayers(layers.Layer):
             avg = self.avg_pool(h)
             avg = layers.Flatten()(avg)
             h = tf.concat([max, avg], 1)
-            h = tf.reshape(h, [-1, self.data_manager.maxlen * 2])
+            h = tf.reshape(h, [-1, self.maxlen * 2])
             h = self.fc_layer(h)
         elif self.cell_type == 'gru':
             h = self.attention(h)
@@ -73,4 +76,20 @@ class BiRNNLayers(layers.Layer):
         return h
 
     def compute_output_shape(self, input_shape):
-        return (input_shape[0], self.data_manager.num_classes)
+        return (input_shape[0], self.num_classes)
+
+    def get_config(self):
+        config = super().get_config().copy()
+        config.update({
+            # 'data_manager': self.data_manager,
+            'maxlen': self.maxlen,
+            'vocab_size': self.vocab_size,
+            'num_classes': self.num_classes,
+            'embed_size': self.embed_size,
+            'regularizers': self.regularizers,
+            'dropout': self.dropout,
+            'state_sizes': self.state_sizes,
+            'cell_type': self.cell_type,
+            'context_vector_length': self.context_vector_length
+        })
+        return config
