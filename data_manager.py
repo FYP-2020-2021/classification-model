@@ -120,7 +120,7 @@ class DataManager():
         # self.train_set = Dataset.from_tensor_slices((train_tokens, train_classes))
         # self.val_set = Dataset.from_tensor_slices((valid_tokens, valid_classes))
 
-    def predict_preprocess(self, input_texts, tf_tokenizer_path):
+    def predict_preprocess(self, input_texts):
         tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
         texts = []
         sentences = []
@@ -128,8 +128,8 @@ class DataManager():
             texts.append(text)
             text = tokenizer.tokenize(text)
             sentences.append(text)
-        with open(tf_tokenizer_path, 'rb') as pkl_read:
-            self.tokenizer = pickle.load(pkl_read)
+        # with open(tf_tokenizer_path, 'rb') as pkl_read:
+        #     self.tokenizer = pickle.load(pkl_read)
         tokens = [self.tokenizer.texts_to_sequences(sentences[i]) for i in range(len(sentences))]
         max_array = [list(map(lambda sentence: len(sentence), text)) for text in tokens]
         maxlen = max(max(max_array))
@@ -138,7 +138,7 @@ class DataManager():
             if tokens[i].shape[0] < self.max_sentence_number:
                 for _ in range(self.max_sentence_number - tokens[i].shape[0]):
                     tokens[i] = np.append(tokens[i], [np.zeros(self.maxlen)], 0)
-        return Dataset.from_tensor_slices(tokens)
+        return np.asarray(tokens)
 
 
 def sys_args():
