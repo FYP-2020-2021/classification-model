@@ -2,14 +2,12 @@ import re
 import os
 import glob
 import nltk
-import random
 import pickle
 import argparse
 import numpy as np
 
 from sklearn import preprocessing
 
-from tensorflow.data import Dataset
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
