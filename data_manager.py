@@ -126,8 +126,8 @@ class DataManager():
             texts.append(text)
             text = tokenizer.tokenize(text)
             sentences.append(text[:100])
-        # with open(tf_tokenizer_path, 'rb') as pkl_read:
-        #     self.tokenizer = pickle.load(pkl_read)
+        with open(tf_tokenizer_path, 'rb') as pkl_read:
+            self.tokenizer = pickle.load(pkl_read)
         tokens = [self.tokenizer.texts_to_sequences(sentences[i]) for i in range(len(sentences))]
         # max_array = [list(map(lambda sentence: len(sentence), text)) for text in tokens]
         # maxlen = max(max(max_array))
